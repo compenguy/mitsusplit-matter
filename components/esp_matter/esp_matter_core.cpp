@@ -24,6 +24,7 @@
 #include <credentials/DeviceAttestationCredsProvider.h>
 #include <credentials/examples/DeviceAttestationCredsExample.h>
 #include <platform/CHIPDeviceLayer.h>
+#include <platform/DeviceInstanceInfoProvider.h>
 #include <platform/ESP32/ESP32FactoryDataProvider.h>
 #include <platform/ESP32/NetworkCommissioningDriver.h>
 #if CHIP_DEVICE_CONFIG_ENABLE_THREAD
@@ -651,6 +652,9 @@ static void esp_matter_chip_init_task(intptr_t context)
  */
 #if CONFIG_ENABLE_ESP32_FACTORY_DATA_PROVIDER
     SetDeviceAttestationCredentialsProvider(&factory_data_provider);
+#if CONFIG_ENABLE_ESP32_DEVICE_INSTANCE_INFO_PROVIDER
+    SetDeviceInstanceInfoProvider(&factory_data_provider);
+#endif
 #else // CONFIG_ENABLE_ESP32_FACTORY_DATA_PROVIDER
     SetDeviceAttestationCredentialsProvider(GetExampleDACProvider());
 #endif
@@ -683,8 +687,7 @@ static esp_err_t chip_init(event_callback_t callback)
 {
 #if CONFIG_ENABLE_ESP32_FACTORY_DATA_PROVIDER
     SetCommissionableDataProvider(&factory_data_provider);
-#endif // CONFIG_ENABLE_ESP32_FACTORY_DATA_PROVIDER
-
+#endif
     if (chip::Platform::MemoryInit() != CHIP_NO_ERROR) {
         ESP_LOGE(TAG, "Failed to initialize CHIP memory pool");
         return ESP_ERR_NO_MEM;

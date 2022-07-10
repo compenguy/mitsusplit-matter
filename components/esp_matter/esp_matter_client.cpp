@@ -146,30 +146,30 @@ namespace command {
 
 esp_err_t send_on(peer_device_t *remote_device, uint16_t remote_endpoint_id)
 {
-    chip::Controller::OnOffCluster cluster;
+    chip::Controller::OnOffCluster cluster(*remote_device->GetExchangeManager(),
+                                           remote_device->GetSecureSession().Value(), remote_endpoint_id);
     OnOff::Commands::On::Type command_data;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
 
 esp_err_t send_off(peer_device_t *remote_device, uint16_t remote_endpoint_id)
 {
-    chip::Controller::OnOffCluster cluster;
+    chip::Controller::OnOffCluster cluster(*remote_device->GetExchangeManager(),
+                                           remote_device->GetSecureSession().Value(), remote_endpoint_id);
     OnOff::Commands::Off::Type command_data;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
 
 esp_err_t send_toggle(peer_device_t *remote_device, uint16_t remote_endpoint_id)
 {
-    chip::Controller::OnOffCluster cluster;
+    chip::Controller::OnOffCluster cluster(*remote_device->GetExchangeManager(),
+                                           remote_device->GetSecureSession().Value(), remote_endpoint_id);
     OnOff::Commands::Toggle::Type command_data;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -183,14 +183,14 @@ namespace command {
 esp_err_t send_move(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t move_mode, uint8_t rate,
                     uint8_t option_mask, uint8_t option_override)
 {
-    chip::Controller::LevelControlCluster cluster;
+    chip::Controller::LevelControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     LevelControl::Commands::Move::Type command_data;
     command_data.moveMode = (LevelControl::MoveMode)move_mode;
     command_data.rate = rate;
     command_data.optionMask = option_mask;
     command_data.optionOverride = option_override;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -198,14 +198,14 @@ esp_err_t send_move(peer_device_t *remote_device, uint16_t remote_endpoint_id, u
 esp_err_t send_move_to_level(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t level,
                              uint16_t transition_time, uint8_t option_mask, uint8_t option_override)
 {
-    chip::Controller::LevelControlCluster cluster;
+    chip::Controller::LevelControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     LevelControl::Commands::MoveToLevel::Type command_data;
     command_data.level = level;
     command_data.transitionTime = transition_time;
     command_data.optionMask = option_mask;
     command_data.optionOverride = option_override;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -213,12 +213,12 @@ esp_err_t send_move_to_level(peer_device_t *remote_device, uint16_t remote_endpo
 esp_err_t send_move_to_level_with_on_off(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t level,
                                          uint16_t transition_time)
 {
-    chip::Controller::LevelControlCluster cluster;
+    chip::Controller::LevelControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     LevelControl::Commands::MoveToLevelWithOnOff::Type command_data;
     command_data.level = level;
     command_data.transitionTime = transition_time;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -226,12 +226,12 @@ esp_err_t send_move_to_level_with_on_off(peer_device_t *remote_device, uint16_t 
 esp_err_t send_move_with_on_off(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t move_mode,
                                 uint8_t rate)
 {
-    chip::Controller::LevelControlCluster cluster;
+    chip::Controller::LevelControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     LevelControl::Commands::MoveWithOnOff::Type command_data;
     command_data.moveMode = (LevelControl::MoveMode)move_mode;
     command_data.rate = rate;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -239,7 +239,8 @@ esp_err_t send_move_with_on_off(peer_device_t *remote_device, uint16_t remote_en
 esp_err_t send_step(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t step_mode, uint8_t step_size,
                     uint16_t transition_time, uint8_t option_mask, uint8_t option_override)
 {
-    chip::Controller::LevelControlCluster cluster;
+    chip::Controller::LevelControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     LevelControl::Commands::Step::Type command_data;
     command_data.stepMode = (LevelControl::StepMode)step_mode;
     command_data.stepSize = step_size;
@@ -247,7 +248,6 @@ esp_err_t send_step(peer_device_t *remote_device, uint16_t remote_endpoint_id, u
     command_data.optionMask = option_mask;
     command_data.optionOverride = option_override;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -255,13 +255,13 @@ esp_err_t send_step(peer_device_t *remote_device, uint16_t remote_endpoint_id, u
 esp_err_t send_step_with_on_off(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t step_mode,
                                 uint8_t step_size, uint16_t transition_time)
 {
-    chip::Controller::LevelControlCluster cluster;
+    chip::Controller::LevelControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     LevelControl::Commands::StepWithOnOff::Type command_data;
     command_data.stepMode = (LevelControl::StepMode)step_mode;
     command_data.stepSize = step_size;
     command_data.transitionTime = transition_time;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -269,22 +269,22 @@ esp_err_t send_step_with_on_off(peer_device_t *remote_device, uint16_t remote_en
 esp_err_t send_stop(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t option_mask,
                     uint8_t option_override)
 {
-    chip::Controller::LevelControlCluster cluster;
+    chip::Controller::LevelControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     LevelControl::Commands::Stop::Type command_data;
     command_data.optionMask = option_mask;
     command_data.optionOverride = option_override;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
 
 esp_err_t send_stop_with_on_off(peer_device_t *remote_device, uint16_t remote_endpoint_id)
 {
-    chip::Controller::LevelControlCluster cluster;
+    chip::Controller::LevelControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     LevelControl::Commands::Stop::Type command_data;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -298,14 +298,14 @@ namespace command {
 esp_err_t send_move_hue(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t move_mode, uint8_t rate,
                         uint8_t option_mask, uint8_t option_override)
 {
-    chip::Controller::ColorControlCluster cluster;
+    chip::Controller::ColorControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     ColorControl::Commands::MoveHue::Type command_data;
     command_data.moveMode = (ColorControl::HueMoveMode)move_mode;
     command_data.rate = rate;
     command_data.optionsMask = option_mask;
     command_data.optionsOverride = option_override;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -313,14 +313,14 @@ esp_err_t send_move_hue(peer_device_t *remote_device, uint16_t remote_endpoint_i
 esp_err_t send_move_saturation(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t move_mode,
                                uint8_t rate, uint8_t option_mask, uint8_t option_override)
 {
-    chip::Controller::ColorControlCluster cluster;
+    chip::Controller::ColorControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     ColorControl::Commands::MoveSaturation::Type command_data;
     command_data.moveMode = (ColorControl::SaturationMoveMode)move_mode;
     command_data.rate = rate;
     command_data.optionsMask = option_mask;
     command_data.optionsOverride = option_override;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -328,7 +328,8 @@ esp_err_t send_move_saturation(peer_device_t *remote_device, uint16_t remote_end
 esp_err_t send_move_to_hue(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t hue, uint8_t direction,
                            uint16_t transition_time, uint8_t option_mask, uint8_t option_override)
 {
-    chip::Controller::ColorControlCluster cluster;
+    chip::Controller::ColorControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     ColorControl::Commands::MoveToHue::Type command_data;
     command_data.hue = hue;
     command_data.direction = (ColorControl::HueDirection)direction;
@@ -336,7 +337,6 @@ esp_err_t send_move_to_hue(peer_device_t *remote_device, uint16_t remote_endpoin
     command_data.optionsMask = option_mask;
     command_data.optionsOverride = option_override;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -345,7 +345,8 @@ esp_err_t send_move_to_hue_and_saturation(peer_device_t *remote_device, uint16_t
                                           uint8_t saturation, uint16_t transition_time, uint8_t option_mask,
                                           uint8_t option_override)
 {
-    chip::Controller::ColorControlCluster cluster;
+    chip::Controller::ColorControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     ColorControl::Commands::MoveToHueAndSaturation::Type command_data;
     command_data.hue = hue;
     command_data.saturation = saturation;
@@ -353,7 +354,6 @@ esp_err_t send_move_to_hue_and_saturation(peer_device_t *remote_device, uint16_t
     command_data.optionsMask = option_mask;
     command_data.optionsOverride = option_override;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -361,14 +361,14 @@ esp_err_t send_move_to_hue_and_saturation(peer_device_t *remote_device, uint16_t
 esp_err_t send_move_to_saturation(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t saturation,
                                   uint16_t transition_time, uint8_t option_mask, uint8_t option_override)
 {
-    chip::Controller::ColorControlCluster cluster;
+    chip::Controller::ColorControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     ColorControl::Commands::MoveToSaturation::Type command_data;
     command_data.saturation = saturation;
     command_data.transitionTime = transition_time;
     command_data.optionsMask = option_mask;
     command_data.optionsOverride = option_override;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -376,7 +376,8 @@ esp_err_t send_move_to_saturation(peer_device_t *remote_device, uint16_t remote_
 esp_err_t send_step_hue(peer_device_t *remote_device, uint16_t remote_endpoint_id, uint8_t step_mode, uint8_t step_size,
                         uint16_t transition_time, uint8_t option_mask, uint8_t option_override)
 {
-    chip::Controller::ColorControlCluster cluster;
+    chip::Controller::ColorControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     ColorControl::Commands::StepHue::Type command_data;
     command_data.stepMode = (ColorControl::HueStepMode)step_mode;
     command_data.stepSize = step_size;
@@ -384,7 +385,6 @@ esp_err_t send_step_hue(peer_device_t *remote_device, uint16_t remote_endpoint_i
     command_data.optionsMask = option_mask;
     command_data.optionsOverride = option_override;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }
@@ -393,7 +393,8 @@ esp_err_t send_step_saturation(peer_device_t *remote_device, uint16_t remote_end
                                uint8_t step_size, uint16_t transition_time, uint8_t option_mask,
                                uint8_t option_override)
 {
-    chip::Controller::ColorControlCluster cluster;
+    chip::Controller::ColorControlCluster cluster(*remote_device->GetExchangeManager(),
+                                                  remote_device->GetSecureSession().Value(), remote_endpoint_id);
     ColorControl::Commands::StepSaturation::Type command_data;
     command_data.stepMode = (ColorControl::SaturationStepMode)step_mode;
     command_data.stepSize = step_size;
@@ -401,7 +402,6 @@ esp_err_t send_step_saturation(peer_device_t *remote_device, uint16_t remote_end
     command_data.optionsMask = option_mask;
     command_data.optionsOverride = option_override;
 
-    cluster.Associate(remote_device, remote_endpoint_id);
     cluster.InvokeCommand(command_data, NULL, send_command_success_callback, send_command_failure_callback);
     return ESP_OK;
 }

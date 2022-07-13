@@ -38,7 +38,7 @@ function init_container_user() {
 		# This assumes that group name is the same as user name for now
 		groupadd -o --gid ${GROUP_ID} ${USER_NAME}
 		# Create non-root user
-		useradd -o --uid ${USER_ID} --gid ${GROUP_ID} --home-dir ${HOME} ${USER_NAME}
+		useradd -o --uid ${USER_ID} --gid ${GROUP_ID} --groups ${TTY_GROUP_ID} --home-dir ${HOME} ${USER_NAME}
 		# setup sudo without password for user
 		echo "${USER_NAME} ALL=NOPASSWD: ALL" > /etc/sudoers.d/user-nopasswd
 		chmod 660 /etc/sudoers.d/user-nopasswd

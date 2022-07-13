@@ -23,14 +23,14 @@ static uint8_t current_brightness = 0;
 static uint32_t current_temp = 6600;
 static HS_color_t current_HS = {0, 0};
 static RGB_color_t mRGB = {0};
-static led_channel_config_t color_leds[] = {
+static ledc_channel_config_t led_channels[] = {
     // Red
     {
         .gpio_num = 0xFF,
         .speed_mode = LEDC_LOW_SPEED_MODE,
         .channel = 0,
         .intr_type = LEDC_INTR_DISABLE,
-        .timer_sel = LEDC_TIMER_1,
+        .timer_sel = LEDC_TIMER_0,
         .duty = 0,
         .hpoint = 0
     },
@@ -40,7 +40,7 @@ static led_channel_config_t color_leds[] = {
         .speed_mode = LEDC_LOW_SPEED_MODE,
         .channel = 0,
         .intr_type = LEDC_INTR_DISABLE,
-        .timer_sel = LEDC_TIMER_1,
+        .timer_sel = LEDC_TIMER_0,
         .duty = 0,
         .hpoint = 0
     },
@@ -50,27 +50,7 @@ static led_channel_config_t color_leds[] = {
         .speed_mode = LEDC_LOW_SPEED_MODE,
         .channel = 0,
         .intr_type = LEDC_INTR_DISABLE,
-        .timer_sel = LEDC_TIMER_1,
-        .duty = 0,
-        .hpoint = 0
-    },
-    // White/Cool White
-    {
-        .gpio_num = 0xFF,
-        .speed_mode = LEDC_LOW_SPEED_MODE,
-        .channel = 0,
-        .intr_type = LEDC_INTR_DISABLE,
-        .timer_sel = LEDC_TIMER_1,
-        .duty = 0,
-        .hpoint = 0
-    },
-    // Warm White
-    {
-        .gpio_num = 0xFF,
-        .speed_mode = LEDC_LOW_SPEED_MODE,
-        .channel = 0,
-        .intr_type = LEDC_INTR_DISABLE,
-        .timer_sel = LEDC_TIMER_1,
+        .timer_sel = LEDC_TIMER_0,
         .duty = 0,
         .hpoint = 0
     }
@@ -84,8 +64,8 @@ esp_err_t led_driver_init(led_driver_config_t *config)
     ledc_timer_config_t ledc_timer = {
         .speed_mode = LEDC_LOW_SPEED_MODE, // timer mode
         .duty_resolution = LEDC_TIMER_8_BIT, // resolution of PWM duty
-        .timer_num = LEDC_TIMER_1, // timer index
-        .freq_hz = 5000, // frequency of PWM signal
+        .timer_num = LEDC_TIMER_0, // timer index
+        .freq_hz = 25000, // frequency of PWM signal
         .clk_cfg = LEDC_AUTO_CLK, // Auto select the source clock
     };
     err = ledc_timer_config(&ledc_timer);
@@ -94,15 +74,17 @@ esp_err_t led_driver_init(led_driver_config_t *config)
         return err;
     }
 
-    for (int i = 0; i >= 4; i++) {
-        int gpio = (config->gpio >> (i * 5)) & 0x1F;
-        if (gpio == 0x1F) {
+    int channel_count = sizeof(led_channels)/sizeof(ledc_channel_config_t);
+    for (int i = 0; i < channel_count; i++) {
+        int gpio = (config->gpio >> (i * 8)) & 0xFF;
+        if (gpio == 0xFF) {
             // Color channel is disabled - skip
             continue;
         }
-        color_leds[i].gpio_num = gpio;
-        color_leds[i].channel = i;
-        err = ledc_channel_config(&ledc_channel);
+        led_channels[i].gpio_num = gpio;
+        led_channels[i].channel = i;
+        ESP_LOGI(TAG, "ledc_channel_config(gpio: %d, channel: %d)", led_channels[i].gpio_num, led_channels[i].channel);
+        err = ledc_channel_config(&led_channels[i]);
         if (err != ESP_OK) {
             ESP_LOGE(TAG, "ledc_channel_config failed");
             return err;
@@ -119,7 +101,8 @@ esp_err_t led_driver_set_power(bool power)
 
 static esp_err_t led_driver_set_channel(int channel, uint8_t intensity)
 {
-    esp_err_t = ESP_OK;
+    esp_err_t err = ESP_OK;
+    ESP_LOGI(TAG, "ledc_set_duty(channel: %d, duty: %d)", channel, intensity);
     err = ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, intensity);
 
     if (err != ESP_OK) {
@@ -138,22 +121,23 @@ esp_err_t led_driver_set_RGB()
     esp_err_t err = ESP_OK;
 
     RGB_color_t scaledRGB = {0};
+    ESP_LOGI(TAG, "led set r:%d, g:%d, b:%d (unscaled)", mRGB.red, mRGB.green, mRGB.blue);
 
-    if (color_leds[0].gpio_num != 0xFF) {
+    if (led_channels[0].gpio_num != 0xFF) {
         scaledRGB.red = (uint8_t)(((int)mRGB.red * (int)current_brightness) / 256);
         err = led_driver_set_channel(LEDC_CHANNEL_0, scaledRGB.red);
         if (err != ESP_OK) {
             ESP_LOGE(TAG, "led_driver_set_RGB failed to set RED channel");
         }
     }
-    if (color_leds[1].gpio_num != 0xFF) {
+    if (led_channels[1].gpio_num != 0xFF) {
         scaledRGB.green = (uint8_t)(((int)mRGB.green * (int)current_brightness) / 256);
         err = led_driver_set_channel(LEDC_CHANNEL_1, scaledRGB.green);
         if (err != ESP_OK) {
             ESP_LOGE(TAG, "led_driver_set_RGB failed to set GREEN channel");
         }
     }
-    if (color_leds[2].gpio_num != 0xFF) {
+    if (led_channels[2].gpio_num != 0xFF) {
         scaledRGB.blue = (uint8_t)(((int)mRGB.blue * (int)current_brightness) / 256);
         err = led_driver_set_channel(LEDC_CHANNEL_2, scaledRGB.green);
         if (err != ESP_OK) {
@@ -161,7 +145,7 @@ esp_err_t led_driver_set_RGB()
         }
     }
 
-    ESP_LOGI(TAG, "led set r:%d, g:%d, b:%d", mRGB.red, mRGB.green, mRGB.blue);
+    ESP_LOGI(TAG, "led set r:%d, g:%d, b:%d (scaled)", scaledRGB.red, scaledRGB.green, scaledRGB.blue);
     return err;
 }
 

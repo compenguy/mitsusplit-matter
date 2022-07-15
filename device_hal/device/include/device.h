@@ -15,6 +15,7 @@
 
 #include <iot_button.h>
 #include <led_driver.h>
+#include <uart_driver.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,6 +23,7 @@ extern "C" {
 
 led_driver_config_t led_driver_get_config();
 button_config_t button_driver_get_config();
+uart_driver_config_t uart_driver_get_config();
 
 #ifdef __cplusplus
 }

@@ -13,3 +13,6 @@ tools/chip-tool/
 .cipd-cache-dir/
 *.stamp
 local.mak
+.bash_history
+.espressif/
+.local/

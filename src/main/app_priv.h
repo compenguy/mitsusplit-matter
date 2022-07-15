@@ -11,23 +11,57 @@
 #include <esp_err.h>
 #include <esp_matter.h>
 
-/** Standard max values (used for remapping attributes) */
-#define STANDARD_BRIGHTNESS 100
-#define STANDARD_HUE 360
-#define STANDARD_SATURATION 100
-#define STANDARD_TEMPERATURE_FACTOR 1000000
+// all-clusters-app.matter, enum ThermostatSystemMode : ENUM8
+// except for dehumidify, which appears to be in the equivalent zigbee clusters, but not (yet?) in matter
+enum thermostat_system_mode : uint8_t {
+    thermostat_system_mode_off = 0,
+    thermostat_system_mode_auto = 1,
+    thermostat_system_mode_cool = 3,
+    thermostat_system_mode_heat = 4,
+    thermostat_system_mode_emergency_heat = 5,
+    thermostat_system_mode_precool = 6,
+    thermostat_system_mode_fanonly = 7,
+    thermostat_system_mode_dehumidify = 8,
+};
+#define DEFAULT_SYSTEM_MODE thermostat_system_mode_off
 
-/** Matter max values (used for remapping attributes) */
-#define MATTER_BRIGHTNESS 254
-#define MATTER_HUE 254
-#define MATTER_SATURATION 254
-#define MATTER_TEMPERATURE_FACTOR 1000000
+// all-clusters-app.matter, enum ThermostatControlSequence : ENUM8
+enum thermostat_control_sequence : uint8_t {
+    thermostat_control_coolingonly = 0,
+    thermostat_control_coolingwithreheat = 1,
+    thermostat_control_heatingonly = 2,
+    thermostat_control_heatingwithreheat = 3,
+    thermostat_control_coolingandheating = 4,
+    thermostat_control_coolingandheatingwithreheat = 5
+};
+#define DEFAULT_CONTROL_SEQUENCE thermostat_control_coolingandheating
+// setpoints are in hundredths of a degree C
+#define DEFAULT_HEATING_SETPOINT 2000
+#define DEFAULT_COOLING_SETPOINT 2600
 
-/** Default attribute values used during initialization */
-#define DEFAULT_POWER true
-#define DEFAULT_BRIGHTNESS 64
-#define DEFAULT_HUE 128
-#define DEFAULT_SATURATION 254
+
+// all-clusters-app.matter, enum FanModeType : ENUM8
+enum fan_mode_type : uint8_t {
+    fan_mode_off = 0,
+    fan_mode_low = 1,
+    fan_mode_medium = 2,
+    fan_mode_high = 3,
+    fan_mode_on = 4,
+    fan_mode_auto = 5,
+    fan_mode_smart = 6
+};
+#define DEFAULT_FAN_MODE fan_mode_auto
+
+// all-clusters-app.matter, enum FanModeSequenceType : ENUM8
+enum fan_mode_sequence : uint8_t {
+    fan_mode_sequence_lowmedhigh = 0,
+    fan_mode_sequence_lowhigh = 1,
+    fan_mode_sequence_lowmedhighauto = 2,
+    fan_mode_sequence_lowhighauto = 3,
+    fan_mode_sequence_offonauto = 4,
+    fan_mode_sequence_offon = 5
+};
+#define DEFAULT_FAN_MODE_SEQUENCE fan_mode_sequence_lowmedhighauto
 
 typedef void *app_driver_handle_t;
 
@@ -48,6 +82,15 @@ app_driver_handle_t app_driver_light_init();
  * @return NULL in case of failure.
  */
 app_driver_handle_t app_driver_button_init();
+
+/** Initialize the heatpump driver
+ *
+ * This initializes the heatpump driver associated with the selected board.
+ *
+ * @return Handle on success.
+ * @return NULL in case of failure.
+ */
+app_driver_handle_t app_driver_heatpump_init();
 
 /** Driver Update
  *
@@ -74,4 +117,4 @@ esp_err_t app_driver_attribute_update(app_driver_handle_t driver_handle, uint16_
  * @return ESP_OK on success.
  * @return error in case of failure.
  */
-esp_err_t app_driver_light_set_defaults(uint16_t endpoint_id);
+esp_err_t app_driver_heatpump_set_defaults(uint16_t endpoint_id);

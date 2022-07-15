@@ -14,6 +14,7 @@
 #include <esp_log.h>
 #include <iot_button.h>
 #include <led_driver.h>
+#include <uart_driver.h>
 
 #define LED_RED_PIN GPIO_NUM_3
 #define LED_GRN_PIN GPIO_NUM_4
@@ -62,6 +63,16 @@ button_config_t button_driver_get_config()
             .gpio_num = BUTTON_PROG_GPIO_PIN,
             .active_level = 0,
         }
+    };
+    return config;
+}
+
+uart_driver_config_t uart_driver_get_config()
+{
+    uart_driver_config_t config = {
+        .num = UART_NUM,
+        .rx_pin = UART_RX_PIN,
+        .tx_pin = UART_TX_PIN
     };
     return config;
 }

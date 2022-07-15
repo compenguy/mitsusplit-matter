@@ -4,8 +4,10 @@ if (NOT ("${IDF_TARGET}" STREQUAL "esp32c3" ))
 endif()
 
 SET(device_type     esp32c3_nodemcu)
+SET(uart_type       esp-idf)
 SET(led_type        multigpio)
 SET(button_type     iot)
 
 SET(extra_components_dirs_append "$ENV{ESP_MATTER_DEVICE_PATH}/../../led_driver"
+                                 "$ENV{ESP_MATTER_DEVICE_PATH}/../../uart_driver"
                                  "$ENV{ESP_MATTER_DEVICE_PATH}/../../button_driver/iot_button")

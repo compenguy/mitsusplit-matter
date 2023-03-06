@@ -93,11 +93,14 @@ extern "C" void app_main()
 
     /* Initialize driver */
     app_driver_handle_t light_handle = app_driver_light_init();
-    (void)light_handle;
+    init_status_led(light_handle);
     app_driver_handle_t button_handle = app_driver_button_init();
     (void)button_handle;
     //app_reset_button_register(button_handle);
     app_driver_handle_t heatpump_handle = app_driver_heatpump_init();
+
+    set_status_led_yellow(40);
+    ESP_LOGI(TAG, "Hardware drivers initialized, Initializing Matter components...");
 
     /* Create a Matter node and add the mandatory Root Node device type on endpoint 0 */
     node::config_t node_config;
@@ -120,6 +123,7 @@ extern "C" void app_main()
 
     /* These node and endpoint handles can be used to create/add other endpoints and clusters. */
     if (!node || !thermostat_endpoint || !fan_endpoint) {
+        set_status_led_red(40);
         ESP_LOGE(TAG, "Matter node creation failed");
     }
 
@@ -130,14 +134,18 @@ extern "C" void app_main()
     ESP_LOGI(TAG, "Fan created with endpoint_id %d", fan_endpoint_id);
 
     /* Matter start */
+    ESP_LOGI(TAG, "Starting up Matter runtime...");
     err = esp_matter::start(app_event_cb);
     if (err != ESP_OK) {
+        set_status_led_red(40);
         ESP_LOGE(TAG, "Matter start failed: %d", err);
     }
 
+    ESP_LOGI(TAG, "Initializing thermostat with defaults...");
     /* Starting driver with default values */
     app_driver_heatpump_set_defaults(thermostat_endpoint_id);
     app_driver_heatpump_set_defaults(fan_endpoint_id);
+    set_status_led_green(40);
     ESP_LOGI(TAG, "Initialized thermostat with defaults...");
 
 #if CONFIG_ENABLE_CHIP_SHELL
